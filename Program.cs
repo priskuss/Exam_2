@@ -144,3 +144,22 @@ Console.WriteLine($"Response: {Colors.Magenta}{task3AnswerResponse.content}{ANSI
 
 Console.WriteLine("\n-----------------------------------\n");
 
+//#### FOURTH TASK
+// Fetch the details of the task from the server.
+TaskManager.Task task4 = new TaskManager.Task();
+task4.taskID = "otYK2";
+Response task4Response = await httpUtils.Get(baseURL + taskEndpoint + myPersonalID + "/" + task4.taskID); // Get the task from the server
+task4 = JsonSerializer.Deserialize<TaskManager.Task>(task4Response.content);
+
+Console.WriteLine($"Task 4: {ANSICodes.Effects.Bold}{Colors.Cyan}{task4.title}{ANSICodes.Reset}");
+Console.WriteLine($"{Colors.Blue}{task4.description}{ANSICodes.Reset}");
+Console.WriteLine($"Parameter: {Colors.Green}{task4.parameters}{ANSICodes.Reset}");
+
+string[] words = task4.parameters.Split(',');
+string[] uniqueWords = words.Distinct().OrderBy(word => word).ToArray();
+string outcome = string.Join(",", uniqueWords);
+
+// Send the answer to the server
+Console.WriteLine($"Answer: {Colors.Green}{outcome}{ANSICodes.Reset}");
+Response task4AnswerResponse = await httpUtils.Post(baseURL + taskEndpoint + myPersonalID + "/" + task4.taskID, outcome);
+Console.WriteLine($"Response: {Colors.Magenta}{task4AnswerResponse.content}{ANSICodes.Reset}");
