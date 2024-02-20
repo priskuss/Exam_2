@@ -25,32 +25,50 @@ string taskID = "rEu25ZX"; // We get the taskID from the previous response and u
 // Fetch the details of the task from the server.
 Response task1Response = await httpUtils.Get(baseURL + taskEndpoint + myPersonalID + "/" + taskID); // Get the task from the server
 Task task1 = JsonSerializer.Deserialize<Task>(task1Response.content);
-Console.WriteLine($"TASK: {ANSICodes.Effects.Bold}{task1?.title}{ANSICodes.Reset}\n{task1?.description}\nParameters: {Colors.Yellow}{task1?.parameters}{ANSICodes.Reset}");
+//Console.WriteLine($"TASK: {ANSICodes.Effects.Bold}{task1?.title}{ANSICodes.Reset}\n{task1?.description}\nParameters: {Colors.Yellow}{task1?.parameters}{ANSICodes.Reset}");
 
 // Calculate the answer to the task
-var answer = task1?.parameters.Split(",").Select(p => int.Parse(p.Trim())).Aggregate<int, int>(0, (acc, n) => acc + n);
+string RomanNumber = task1?.parameters;
+var answer = ConvertRomanToInt(RomanNumber);
+Console.WriteLine($"Task 1: {ANSICodes.Effects.Bold}{ANSICodes.Effects.Bold}{Colors.Cyan}{task1.title}{ANSICodes.Reset}");
+Console.WriteLine($"{Colors.Blue}{task1.description}{ANSICodes.Reset}");
+Console.WriteLine($"Parameter: {Colors.Green}{task1.parameters}{ANSICodes.Reset}");
+
+static int ConvertRomanToInt(string s)
+{
+    Dictionary<char, int> RomanMap = new Dictionary<char, int>()
+    {
+        { 'I', 1 },
+        { 'V', 5 },
+        { 'X', 10 },
+        { 'L', 50 },
+        { 'C', 100 }
+    };
+
+    int number = 0;
+
+    for (int i = 0; i < s.Length; i++)
+    {
+        if (i + 1 < s.Length && RomanMap[s[i]] < RomanMap[s[i + 1]])
+        {
+            number -= RomanMap[s[i]];
+        }
+        else
+        {
+            number += RomanMap[s[i]];
+        }
+    }
+
+    return number;
+}
+
 
 // Send the answer to the server
 Response task1AnswerResponse = await httpUtils.Post(baseURL + taskEndpoint + myPersonalID + "/" + taskID, answer.ToString());
-Console.WriteLine($"Answer: {Colors.Green}{task1AnswerResponse}{ANSICodes.Reset}");
-
-taskID = "bbb"; // We get the taskID from the previous response and use it to get the task (look at the console output to find the taskID)
+Console.WriteLine($"Answer: {Colors.Green}{answer}{ANSICodes.Reset}");
+Console.WriteLine($"Response: {Colors.Magenta}{task1AnswerResponse.content}{ANSICodes.Reset}");
 
 Console.WriteLine("\n-----------------------------------\n");
-
-//#### SECOND TASK
-// Fetch the details of the task from the server.
-Response task2Response = await httpUtils.Get(baseURL + taskEndpoint + myPersonalID + "/" + taskID); // Get the task from the server
-Task task2 = JsonSerializer.Deserialize<Task>(task2Response.content);
-Console.WriteLine($"TASK: {ANSICodes.Effects.Bold}{task2?.title}{ANSICodes.Reset}\n{task2?.description}\nParameters: {Colors.Yellow}{task2?.parameters}{ANSICodes.Reset}");
-
-
-var answer2 = task2.parameters.Contains("ice cream") ? "I scream for ice cream" : "I will have a cup of tea";
-// Send the answer to the server
-Response task2AnswerResponse = await httpUtils.Post(baseURL + taskEndpoint + myPersonalID + "/" + taskID, answer2);
-Console.WriteLine($"\nAnswer: {Colors.Green}{task2AnswerResponse}{ANSICodes.Reset}");
-
-// That was the final task for the demo, so we are done here.
 
 class Task
 {
