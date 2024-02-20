@@ -109,3 +109,38 @@ int nextNumber = series[^1] + difference;
 Response task2AnswerResponse = await httpUtils.Post(baseURL + taskEndpoint + myPersonalID + "/" + task2.taskID, nextNumber.ToString());
 Console.WriteLine($"Answer: {Colors.Green}{nextNumber}{ANSICodes.Reset}");
 Console.WriteLine($"Response: {Colors.Magenta}{task2AnswerResponse.content}{ANSICodes.Reset}");
+
+Console.WriteLine("\n-----------------------------------\n");
+
+//#### THIRD TASK 
+// Fetch the details of the task from the server.
+TaskManager.Task task3 = new TaskManager.Task();
+task3.taskID = "aLp96";
+Response task3Response = await httpUtils.Get(baseURL + taskEndpoint + myPersonalID + "/" + task3.taskID); // Get the task from the server
+task3 = JsonSerializer.Deserialize<TaskManager.Task>(task3Response.content);
+
+Console.WriteLine($"Task 3: {ANSICodes.Effects.Bold}{Colors.Cyan}{task3.title}{ANSICodes.Reset}");
+Console.WriteLine($"{Colors.Blue}{task3.description}{ANSICodes.Reset}");
+Console.WriteLine($"Parameter: {Colors.Green}{task3.parameters}{ANSICodes.Reset}");
+
+int number = int.Parse(task3.parameters);
+string OddOrEven(int number)
+{
+    if (number % 2 == 0)
+    {
+        return "even";
+    }
+    else
+    {
+        return "odd";
+    }
+}
+string result = OddOrEven(number);
+
+// Send the answer to the server
+Response task3AnswerResponse = await httpUtils.Post(baseURL + taskEndpoint + myPersonalID + "/" + task3.taskID, result);
+Console.WriteLine($"Answer: {Colors.Green}{result}{ANSICodes.Reset}");
+Console.WriteLine($"Response: {Colors.Magenta}{task3AnswerResponse.content}{ANSICodes.Reset}");
+
+Console.WriteLine("\n-----------------------------------\n");
+
