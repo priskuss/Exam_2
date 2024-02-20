@@ -2,6 +2,8 @@
 using System.Text.Json;
 using AnsiTools;
 using Colors = AnsiTools.ANSICodes.Colors;
+using TaskManager;
+
 
 Console.Clear();
 Console.WriteLine("Starting Assignment 2");
@@ -19,13 +21,14 @@ HttpUtils httpUtils = HttpUtils.instance;
 // We start by registering and getting the first task
 Response startRespons = await httpUtils.Get(baseURL + startEndpoint + myPersonalID);
 Console.WriteLine($"Start:\n{Colors.Magenta}{startRespons}{ANSICodes.Reset}\n\n"); // Print the response from the server to the console
-string taskID = "rEu25ZX"; // We get the taskID from the previous response and use it to get the task (look at the console output to find the taskID)
+///// // We get the taskID from the previous response and use it to get the task (look at the console output to find the taskID)
 
 //#### FIRST TASK 
 // Fetch the details of the task from the server.
-Response task1Response = await httpUtils.Get(baseURL + taskEndpoint + myPersonalID + "/" + taskID); // Get the task from the server
-Task task1 = JsonSerializer.Deserialize<Task>(task1Response.content);
-//Console.WriteLine($"TASK: {ANSICodes.Effects.Bold}{task1?.title}{ANSICodes.Reset}\n{task1?.description}\nParameters: {Colors.Yellow}{task1?.parameters}{ANSICodes.Reset}");
+TaskManager.Task task1 = new TaskManager.Task();
+task1.taskID = "rEu25ZX";
+Response task1Response = await httpUtils.Get(baseURL + taskEndpoint + myPersonalID + "/" + task1.taskID); // Get the task from the server
+task1 = JsonSerializer.Deserialize<TaskManager.Task>(task1Response.content);
 
 // Calculate the answer to the task
 string RomanNumber = task1?.parameters;
@@ -64,17 +67,45 @@ static int ConvertRomanToInt(string s)
 
 
 // Send the answer to the server
-Response task1AnswerResponse = await httpUtils.Post(baseURL + taskEndpoint + myPersonalID + "/" + taskID, answer.ToString());
+Response task1AnswerResponse = await httpUtils.Post(baseURL + taskEndpoint + myPersonalID + "/" + task1.taskID, answer.ToString());
 Console.WriteLine($"Answer: {Colors.Green}{answer}{ANSICodes.Reset}");
 Console.WriteLine($"Response: {Colors.Magenta}{task1AnswerResponse.content}{ANSICodes.Reset}");
 
 Console.WriteLine("\n-----------------------------------\n");
 
-class Task
+
+//#### SECOND TASK 
+// Fetch the details of the task from the server.
+TaskManager.Task task2 = new TaskManager.Task();
+task2.taskID = "KO1pD3";
+Response task2Response = await httpUtils.Get(baseURL + taskEndpoint + myPersonalID + "/" + task2.taskID); // Get the task from the server
+task2 = JsonSerializer.Deserialize<TaskManager.Task>(task2Response.content);
+
+Console.WriteLine($"Task 2: {ANSICodes.Effects.Bold}{Colors.Cyan}{task2.title}{ANSICodes.Reset}");
+Console.WriteLine($"{Colors.Blue}{task2.description}{ANSICodes.Reset}");
+Console.WriteLine($"Parameter: {Colors.Green}{task2.parameters}{ANSICodes.Reset}");
+
+// Parse the series from the parameters
+string[] parameters = task2.parameters.Split(',');
+int[] series = Array.ConvertAll(parameters, int.Parse);
+
+// Calculate the difference between consecutive numbers
+int difference = series[1] - series[0];
+
+// Check if the difference is constant
+for (int i = 2; i < series.Length; i++)
 {
-    public string? title { get; set; }
-    public string? description { get; set; }
-    public string? taskID { get; set; }
-    public string? usierID { get; set; }
-    public string? parameters { get; set; }
+    if (series[i] - series[i - 1] != difference)
+    {
+        Console.WriteLine("The series is not an arithmetic sequence.");
+        return;
+    }
 }
+
+// Calculate the next number in the series
+int nextNumber = series[^1] + difference;
+
+// Send the answer to the server
+Response task2AnswerResponse = await httpUtils.Post(baseURL + taskEndpoint + myPersonalID + "/" + task2.taskID, nextNumber.ToString());
+Console.WriteLine($"Answer: {Colors.Green}{nextNumber}{ANSICodes.Reset}");
+Console.WriteLine($"Response: {Colors.Magenta}{task2AnswerResponse.content}{ANSICodes.Reset}");
